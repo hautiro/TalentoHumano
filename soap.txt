@@ -1,0 +1,43 @@
+
+//app - module
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { SoapModule } from 'nestjs-soap';
+
+@Module({
+  imports: [
+    SoapModule.forRoot({
+      wsdlOptions: {
+        strictSSL: false,
+        rejectUnauthorized: false
+      }
+    })
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+
+
+//servicio
+
+import { Controller, Get } from '@nestjs/common';
+import { SoapService } from 'nestjs-soap';
+
+@Controller('api')
+export class AppController {
+  constructor(private readonly soapService: SoapService) {}
+
+  @Get('hello')
+  async hello() {
+    const result = await this.soapService.send({
+      url: 'http://localhost:8000/wsdl',
+      method: 'hello',
+      params: {
+        name: 'John'
+      }
+    });
+    return result;
+  }
+}
